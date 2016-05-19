@@ -8,6 +8,8 @@ class ViewController : UIViewController {
     // Views that need to be accessible to all methods
     let jsonResult = UILabel()
     
+    let field = UITextField(frame: CGRect(x: 0, y: 0, width: 300, height: 30))
+    
     // If data is successfully retrieved from the server, we can parse it here
     func parseMyJSON(theData : NSData) {
         
@@ -21,7 +23,7 @@ class ViewController : UIViewController {
             
             // Do the initial de-serialization
             // Source JSON is here:
-            // http://www.learnswiftonline.com/Samples/subway.json
+            // http://api.openweathermap.org/data/2.5/weather?q=Toronto,ca&appid=6f3d9ef1a77a8b37019ebe9802e7eadc
             //
             let json = try NSJSONSerialization.JSONObjectWithData(theData, options: NSJSONReadingOptions.AllowFragments) as! AnyObject
             
@@ -34,10 +36,54 @@ class ViewController : UIViewController {
             print("")
             print("Now, add your parsing code here...")
             
+            if let weatherData = json as? [String : AnyObject] {
+                
+                // If this worked, I have a dictionary
+                print("=======")
+                print("The value for the 'main' key is: ")
+                print(weatherData["main"])
+                print("=======")
+                
+                // If this worked, I have a dictionary
+                print("=======")
+                print("The value for the 'weather' key is: ")
+                print(weatherData["weather"])
+                print("=======")
+                
+                print(weatherData["name"])
+                let name = weatherData["name"]
+                
+                
+                if let weatherMain = weatherData["main"] as? [String : AnyObject] {
+                    
+                    // If this worked, we can use this data
+                    print("======= Temperature =======")
+                    print(weatherMain["temp"])
+                    let temperatureK : Double = weatherMain["temp"] as! Double
+                    let temperatureC = temperatureK - 273.15
+                    print("\(temperatureC)°C")
+                    print ("======= Humidity =======")
+                    print(weatherMain["humidity"])
+            
+                }
+                
+                if let weatherSystem = weatherData["sys"] as? [String : AnyObject] {
+                    
+                    // If this worked, we can use this data
+                    print("======= Country =======")
+                    print(weatherSystem["country"])
+                    let country = weatherSystem["country"]
+                    print("\(name),\(country)")
+
+                    
+                }
+                
+            }
+            
             // Now we can update the UI
             // (must be done asynchronously)
             dispatch_async(dispatch_get_main_queue()) {
-                self.jsonResult.text = "parsed JSON should go here"
+                self.jsonResult.text = ""
             }
             
         } catch let error as NSError {
@@ -94,8 +140,10 @@ class ViewController : UIViewController {
             
         }
         
+        let location : String = field.text!
+        
         // Define a URL to retrieve a JSON file from
-        let address : String = "http://www.learnswiftonline.com/Samples/subway.json"
+        let address : String = "http://api.openweathermap.org/data/2.5/weather?q=\(location)&appid=6f3d9ef1a77a8b37019ebe9802e7eadc"
         
         // Try to make a URL request object
         if let url = NSURL(string: address) {
@@ -151,6 +199,17 @@ class ViewController : UIViewController {
         
         // Add the label to the superview
         view.addSubview(jsonResult)
+        
+        // Set the label text and appearance
+        
+        field.backgroundColor = UIColor.whiteColor()
+        field.placeholder = "Location"
+        
+        // Required to autolayout this label
+        field.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Add the label to the superview
+        view.addSubview(field)
 
         /*
          * Add a button
@@ -161,13 +220,25 @@ class ViewController : UIViewController {
         getData.addTarget(self, action: #selector(ViewController.getMyJSON), forControlEvents: UIControlEvents.TouchUpInside)
         
         // Set the button's title
-        getData.setTitle("Get my JSON!", forState: UIControlState.Normal)
+        getData.setTitle("Go!", forState: UIControlState.Normal)
         
         // Required to auto layout this button
         getData.translatesAutoresizingMaskIntoConstraints = false
         
         // Add the button into the super view
         view.addSubview(getData)
+        
+        let label = UILabel()
+        
+        // Set the label text and appearance
+        label.text = "Location"
+        label.font = UIFont.boldSystemFontOfSize(18)
+        
+        // Required to autolayout this label
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Add the label to the superview
+        view.addSubview(label)
 
         /*
          * Layout all the interface elements
@@ -182,11 +253,13 @@ class ViewController : UIViewController {
         // Create a dictionary of views that will be used in the layout constraints defined below
         let viewsDictionary : [String : AnyObject] = [
             "title": jsonResult,
-            "getData": getData]
+            "getData": getData,
+            "field" : field,
+            "label" : label]
         
         // Define the vertical constraints
         let verticalConstraints = NSLayoutConstraint.constraintsWithVisualFormat(
-            "V:|-50-[getData]-[title]",
+            "V:|-50-[getData]-[title]-50-[field][label]",
             options: [],
             metrics: nil,
             views: viewsDictionary)
