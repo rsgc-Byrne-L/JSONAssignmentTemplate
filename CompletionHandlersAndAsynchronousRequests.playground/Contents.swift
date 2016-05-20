@@ -10,6 +10,12 @@ class ViewController : UIViewController {
     
     let field = UITextField(frame: CGRect(x: 0, y: 0, width: 300, height: 30))
     
+    //let label2 = UILabel()
+    
+    var temperatureFinal : Double = 0
+    var nameFinal : String = ""
+    var countryFinal : String = ""
+    
     // If data is successfully retrieved from the server, we can parse it here
     func parseMyJSON(theData : NSData) {
         
@@ -61,6 +67,7 @@ class ViewController : UIViewController {
                     print(weatherMain["temp"])
                     let temperatureK : Double = weatherMain["temp"] as! Double
                     let temperatureC = temperatureK - 273.15
+                    temperatureFinal = temperatureC
                     print("\(temperatureC)°C")
                     print ("======= Humidity =======")
                     print(weatherMain["humidity"])
@@ -74,6 +81,8 @@ class ViewController : UIViewController {
                     print(weatherSystem["country"])
                     let country = weatherSystem["country"]
                     print("\(name),\(country)")
+                    nameFinal = name
+                    countryFinal = country
 
                     
                 }
@@ -83,7 +92,7 @@ class ViewController : UIViewController {
             // Now we can update the UI
             // (must be done asynchronously)
             dispatch_async(dispatch_get_main_queue()) {
-                self.jsonResult.text = ""
+                self.jsonResult.text = "\(self.temperatureFinal)\n "
             }
             
         } catch let error as NSError {
@@ -141,6 +150,8 @@ class ViewController : UIViewController {
         }
         
         let location : String = field.text!
+        
+        //label2.text = location
         
         // Define a URL to retrieve a JSON file from
         let address : String = "http://api.openweathermap.org/data/2.5/weather?q=\(location)&appid=6f3d9ef1a77a8b37019ebe9802e7eadc"
@@ -203,7 +214,7 @@ class ViewController : UIViewController {
         // Set the label text and appearance
         
         field.backgroundColor = UIColor.whiteColor()
-        field.placeholder = "Location"
+        field.placeholder = "Enter location here"
         
         // Required to autolayout this label
         field.translatesAutoresizingMaskIntoConstraints = false
@@ -228,17 +239,29 @@ class ViewController : UIViewController {
         // Add the button into the super view
         view.addSubview(getData)
         
-        let label = UILabel()
+        let label1 = UILabel()
         
         // Set the label text and appearance
-        label.text = "Location"
-        label.font = UIFont.boldSystemFontOfSize(18)
+        label1.text = "Weather"
+        label1.font = UIFont.boldSystemFontOfSize(48)
         
         // Required to autolayout this label
-        label.translatesAutoresizingMaskIntoConstraints = false
+        label1.translatesAutoresizingMaskIntoConstraints = false
         
         // Add the label to the superview
-        view.addSubview(label)
+        view.addSubview(label1)
+        
+        // Set the label text and appearance
+        
+        //label2.text = "\(temperatureFinal)°C"
+        jsonResult.font = UIFont.boldSystemFontOfSize(18)
+        
+        // Required to autolayout this label
+        //label2.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Add the label to the superview
+        //view.addSubview(label2)
+
 
         /*
          * Layout all the interface elements
@@ -255,11 +278,13 @@ class ViewController : UIViewController {
             "title": jsonResult,
             "getData": getData,
             "field" : field,
-            "label" : label]
-        
+            "label1" : label1,
+            //"label2" : label2]
+    ]
+    
         // Define the vertical constraints
         let verticalConstraints = NSLayoutConstraint.constraintsWithVisualFormat(
-            "V:|-50-[getData]-[title]-50-[field][label]",
+            "V:|-50-[label1]-50-[field]-50-[title][label2]-50-[getData]",
             options: [],
             metrics: nil,
             views: viewsDictionary)
