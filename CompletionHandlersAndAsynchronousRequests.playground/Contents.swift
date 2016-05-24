@@ -13,8 +13,10 @@ class ViewController : UIViewController {
     //let label2 = UILabel()
     
     var temperatureFinal : Double = 0
-    var nameFinal : String = ""
-    var countryFinal : String = ""
+    var temperatureFinalF : Double = 0
+    var nameFinal : AnyObject = ""
+    var countryFinal : AnyObject = ""
+    var humidityFinal : AnyObject = 0
     
     // If data is successfully retrieved from the server, we can parse it here
     func parseMyJSON(theData : NSData) {
@@ -68,9 +70,12 @@ class ViewController : UIViewController {
                     let temperatureK : Double = weatherMain["temp"] as! Double
                     let temperatureC = temperatureK - 273.15
                     temperatureFinal = temperatureC
+                    temperatureFinalF = temperatureK*(9/5)-459.67
                     print("\(temperatureC)°C")
                     print ("======= Humidity =======")
                     print(weatherMain["humidity"])
+                    let humidity = weatherMain["humidity"]
+                    humidityFinal = humidity!
             
                 }
                 
@@ -81,9 +86,16 @@ class ViewController : UIViewController {
                     print(weatherSystem["country"])
                     let country = weatherSystem["country"]
                     print("\(name),\(country)")
-                    nameFinal = name
-                    countryFinal = country
-
+                    nameFinal = name!
+                    countryFinal = country!
+                    
+                }
+                
+                if let weatherWeather = weatherData["weather"] as? [String : AnyObject] {
+                    
+                    // If this worked, we can use this data
+                    print("======= Temperature =======")
+                    print(weatherWeather["weather"])
                     
                 }
                 
@@ -92,7 +104,7 @@ class ViewController : UIViewController {
             // Now we can update the UI
             // (must be done asynchronously)
             dispatch_async(dispatch_get_main_queue()) {
-                self.jsonResult.text = "\(self.temperatureFinal)\n "
+                self.jsonResult.text = "\(self.temperatureFinal)°C \n\(self.temperatureFinalF)°F \n\(self.humidityFinal)% humidity\n\(self.nameFinal), \(self.countryFinal)"
             }
             
         } catch let error as NSError {
@@ -215,6 +227,10 @@ class ViewController : UIViewController {
         
         field.backgroundColor = UIColor.whiteColor()
         field.placeholder = "Enter location here"
+        field.borderStyle = UITextBorderStyle.RoundedRect
+        field.font = UIFont.systemFontOfSize(15)
+        field.contentVerticalAlignment = UIControlContentVerticalAlignment.Center
+        field.textAlignment = NSTextAlignment.Center
         
         // Required to autolayout this label
         field.translatesAutoresizingMaskIntoConstraints = false
@@ -236,6 +252,8 @@ class ViewController : UIViewController {
         // Required to auto layout this button
         getData.translatesAutoresizingMaskIntoConstraints = false
         
+        
+        
         // Add the button into the super view
         view.addSubview(getData)
         
@@ -243,7 +261,10 @@ class ViewController : UIViewController {
         
         // Set the label text and appearance
         label1.text = "Weather"
-        label1.font = UIFont.boldSystemFontOfSize(48)
+        label1.font = UIFont.boldSystemFontOfSize(36)
+        label1.textAlignment = NSTextAlignment.Center
+        
+        
         
         // Required to autolayout this label
         label1.translatesAutoresizingMaskIntoConstraints = false
@@ -252,17 +273,8 @@ class ViewController : UIViewController {
         view.addSubview(label1)
         
         // Set the label text and appearance
-        
-        //label2.text = "\(temperatureFinal)°C"
         jsonResult.font = UIFont.boldSystemFontOfSize(18)
         
-        // Required to autolayout this label
-        //label2.translatesAutoresizingMaskIntoConstraints = false
-        
-        // Add the label to the superview
-        //view.addSubview(label2)
-
-
         /*
          * Layout all the interface elements
          */
@@ -279,20 +291,20 @@ class ViewController : UIViewController {
             "getData": getData,
             "field" : field,
             "label1" : label1,
-            //"label2" : label2]
-    ]
+            ]
     
         // Define the vertical constraints
         let verticalConstraints = NSLayoutConstraint.constraintsWithVisualFormat(
-            "V:|-50-[label1]-50-[field]-50-[title][label2]-50-[getData]",
+            "V:|-50-[label1]-50-[field]-50-[title][getData]",
             options: [],
             metrics: nil,
             views: viewsDictionary)
         
+        
+        
         // Add the vertical constraints to the list of constraints
         allConstraints += verticalConstraints
         
-        // Activate all defined constraints
         NSLayoutConstraint.activateConstraints(allConstraints)
         
     }
