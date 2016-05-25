@@ -68,9 +68,16 @@ class ViewController : UIViewController {
                     print("======= Temperature =======")
                     print(weatherMain["temp"])
                     let temperatureK : Double = weatherMain["temp"] as! Double
+                    // We create celcius using our data from our source
                     let temperatureC = temperatureK - 273.15
-                    temperatureFinal = temperatureC
-                    temperatureFinalF = temperatureK*(9/5)-459.67
+                    // We create fehrinheight using our data from our source
+                    let temperatureF = temperatureK*(9/5)-459.67
+                    // We round celcius so its not a number with many decimal places
+                    temperatureFinal = Double(round(1000*temperatureC)/1000)
+                    // We round fehrinheight so its not a number with many decimal places
+                    temperatureFinalF = Double(round(1000*temperatureF)/1000)
+                    
+                    
                     print("\(temperatureC)°C")
                     print ("======= Humidity =======")
                     print(weatherMain["humidity"])
@@ -269,11 +276,17 @@ class ViewController : UIViewController {
         // Required to autolayout this label
         label1.translatesAutoresizingMaskIntoConstraints = false
         
+        
         // Add the label to the superview
         view.addSubview(label1)
         
         // Set the label text and appearance
         jsonResult.font = UIFont.boldSystemFontOfSize(18)
+        
+        let imageView = UIImageView(frame: CGRectMake(100, 150, 150, 150));
+        let image = UIImage(named: "myImage.jpg");
+        imageView.image = image;
+        self.view.addSubview(imageView);
         
         /*
          * Layout all the interface elements
