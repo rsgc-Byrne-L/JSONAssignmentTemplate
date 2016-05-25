@@ -283,11 +283,6 @@ class ViewController : UIViewController {
         // Set the label text and appearance
         jsonResult.font = UIFont.boldSystemFontOfSize(18)
         
-        let imageView = UIImageView(frame: CGRectMake(100, 150, 150, 150));
-        let image = UIImage(named: "myImage.jpg");
-        imageView.image = image;
-        self.view.addSubview(imageView);
-        
         /*
          * Layout all the interface elements
          */
@@ -308,7 +303,7 @@ class ViewController : UIViewController {
     
         // Define the vertical constraints
         let verticalConstraints = NSLayoutConstraint.constraintsWithVisualFormat(
-            "V:|-50-[label1]-50-[field]-50-[title][getData]",
+            "V:|-50-[label1]-50-[field]-50-[title]-50-[getData]",
             options: [],
             metrics: nil,
             views: viewsDictionary)
